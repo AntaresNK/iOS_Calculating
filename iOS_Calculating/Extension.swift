@@ -22,3 +22,13 @@ extension UIButton {
         ])
     }
 }
+
+extension Double {
+        func thousands() -> String {
+            let formatter = NumberFormatter()
+            formatter.numberStyle = .decimal
+          //  formatter.maximumFractionDigits = 15
+            formatter.groupingSeparator = " "
+            return formatter.string(from: self as NSNumber) ?? ""
+        }
+    }

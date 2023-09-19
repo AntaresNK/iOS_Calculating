@@ -43,18 +43,16 @@ class ViewController: UIViewController {
     
     var userInput = ""
     var allCleanTouched = false
-    var firstInput = ""
-    var secondInput = ""
-  //  var resultDisplay = ""
     var firstNumber = 0.0
     var secondNumber = 0.0
     var currentOperation: Operation?
     var hasResult = false
     var isNegative = false
-    
+    var isDecimal = false
+    var fontSize = 100.0
     
     enum Operation {
-    case add, substract, multiply, divide
+        case add, substract, multiply, divide
     }
     
     override func viewDidLoad() {
@@ -62,8 +60,8 @@ class ViewController: UIViewController {
         view.addSubview(topContainerView)
         view.addSubview(bottomContainerView)
         
-        let topHeightProportion: CGFloat = 0.25
-        let bottomHeightProportion: CGFloat = 0.75
+        let topHeightProportion: CGFloat = 0.35
+        let bottomHeightProportion: CGFloat = 0.65
         
         let screenHeight = UIScreen.main.bounds.height
         let topHeight = screenHeight * topHeightProportion
@@ -79,7 +77,7 @@ class ViewController: UIViewController {
         displayLabel.text = "0"
         displayLabel.textColor = UIColor(red: 1, green: 1, blue: 1, alpha: 1)
         displayLabel.textAlignment = .right
-        displayLabel.font = UIFont.systemFont(ofSize: 90, weight: .light)
+        displayLabel.font = UIFont.systemFont(ofSize: fontSize, weight: .light)
         displayLabel.translatesAutoresizingMaskIntoConstraints = false
         topContainerView.addSubview(displayLabel)
         
@@ -94,9 +92,9 @@ class ViewController: UIViewController {
         firstStackView.translatesAutoresizingMaskIntoConstraints = false
         mainStackView.addArrangedSubview(firstStackView)
         
-    
+        
         clearButton.setTitle("AC", for: .normal)
-            clearButton.setTitleColor(.black, for: .normal)
+        clearButton.setTitleColor(.black, for: .normal)
         clearButton.backgroundColor = UIColor(red: 171/255, green: 171/255, blue: 171/255, alpha: 1)
         clearButton.configureButton()
         clearButton.addTarget(self, action: #selector(allCleanPressed), for: .touchDown)
@@ -115,6 +113,7 @@ class ViewController: UIViewController {
         percentButton.contentMode = .scaleAspectFill
         percentButton.backgroundColor = UIColor(red: 171/255, green: 171/255, blue: 171/255, alpha: 1)
         percentButton.configureButton()
+        percentButton.addTarget(self, action: #selector(percentPressed), for: .touchDown)
         firstStackView.addArrangedSubview(percentButton)
         
         divisionButton.setImage(UIImage(systemName: "divide", withConfiguration: UIImage.SymbolConfiguration(pointSize: 25, weight: .bold, scale: .large)), for: .normal)
@@ -168,7 +167,7 @@ class ViewController: UIViewController {
         fiveButton.setTitle("5", for: .normal)
         fiveButton.backgroundColor = UIColor(red: 51/255, green: 51/255, blue: 51/255, alpha: 1)
         fiveButton.configureButton()
-            fiveButton.addTarget(self, action: #selector(fivePressed), for: .touchDown)
+        fiveButton.addTarget(self, action: #selector(fivePressed), for: .touchDown)
         thirdStackView.addArrangedSubview(fiveButton)
         
         sixButton.setTitle("6", for: .normal)
@@ -244,15 +243,16 @@ class ViewController: UIViewController {
     
     func setupConstraints() {
         NSLayoutConstraint.activate([
-            displayLabel.topAnchor.constraint(equalTo: topContainerView.bottomAnchor),
-            displayLabel.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -24)
+            displayLabel.bottomAnchor.constraint(equalTo: topContainerView.bottomAnchor),
+            displayLabel.trailingAnchor.constraint(equalTo: topContainerView.safeAreaLayoutGuide.trailingAnchor, constant: -24)
         ])
         
+        
         NSLayoutConstraint.activate([
-            mainStackView.topAnchor.constraint(equalTo: displayLabel.bottomAnchor, constant: 15),
-            mainStackView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
-            mainStackView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16)
-            ])
+            mainStackView.topAnchor.constraint(equalTo: bottomContainerView.topAnchor, constant: 15),
+            mainStackView.leadingAnchor.constraint(equalTo: bottomContainerView.safeAreaLayoutGuide.leadingAnchor, constant: 16),
+            mainStackView.trailingAnchor.constraint(equalTo: bottomContainerView.safeAreaLayoutGuide.trailingAnchor, constant: -16)
+        ])
         
         NSLayoutConstraint.activate([
             zeroButton.heightAnchor.constraint(equalToConstant: 80),
@@ -261,29 +261,39 @@ class ViewController: UIViewController {
         
     }
     
-   @objc func onePressed() {
-       if hasResult {
-           userInput = ""
-           userInput = "1"
-           displayLabel.text = userInput
-           hasResult = false
-       } else {
-           displayLabel.text = ""
-           userInput += "1"
-           displayLabel.text! = userInput
-       }
+    @objc func onePressed() {
+        if hasResult {
+            userInput = ""
+            userInput = "1"
+            fontSize = 100.0
+            displayLabel.font = UIFont.systemFont(ofSize: CGFloat(fontSize), weight: .light)
+            displayLabel.text = userInput
+            hasResult = false
+        } else {
+            userInput += "1"
+            if let number = Double(userInput) {
+                configureDisplayFont(number: number.thousands())
+            } else {
+                displayLabel.text = "Error"
+            }
+        }
     }
     
     @objc func twoPressed() {
         if hasResult {
             userInput = ""
             userInput = "2"
+            fontSize = 100.0
+            displayLabel.font = UIFont.systemFont(ofSize: CGFloat(fontSize), weight: .light)
             displayLabel.text = userInput
             hasResult = false
         } else {
-            displayLabel.text = ""
             userInput += "2"
-            displayLabel.text! = userInput
+            if let number = Double(userInput) {
+                configureDisplayFont(number: number.thousands())
+            } else {
+                displayLabel.text = "Error"
+            }
         }
     }
     
@@ -291,93 +301,141 @@ class ViewController: UIViewController {
         if hasResult {
             userInput = ""
             userInput = "3"
+            fontSize = 100.0
+            displayLabel.font = UIFont.systemFont(ofSize: CGFloat(fontSize), weight: .light)
             displayLabel.text = userInput
             hasResult = false
         } else {
-            displayLabel.text = ""
             userInput += "3"
-            displayLabel.text! = userInput
+            if let number = Double(userInput) {
+                configureDisplayFont(number: number.thousands())
+            } else {
+                displayLabel.text = "Error"
+            }
         }
     }
     @objc func fourPressed() {
         if hasResult {
             userInput = ""
             userInput = "4"
+            fontSize = 100.0
+            displayLabel.font = UIFont.systemFont(ofSize: CGFloat(fontSize), weight: .light)
             displayLabel.text = userInput
             hasResult = false
         } else {
-            displayLabel.text = ""
             userInput += "4"
-            displayLabel.text! = userInput
+            if let number = Double(userInput) {
+                configureDisplayFont(number: number.thousands())
+            } else {
+                displayLabel.text = "Error"
+            }
         }
     }
     @objc func fivePressed() {
         if hasResult {
             userInput = ""
             userInput = "5"
+            fontSize = 100.0
+            displayLabel.font = UIFont.systemFont(ofSize: CGFloat(fontSize), weight: .light)
             displayLabel.text = userInput
             hasResult = false
         } else {
-            displayLabel.text = ""
             userInput += "5"
-            displayLabel.text! = userInput
+            if let number = Double(userInput) {
+                configureDisplayFont(number: number.thousands())
+            } else {
+                displayLabel.text = "Error"
+            }
         }
     }
     @objc func sixPressed() {
         if hasResult {
             userInput = ""
             userInput = "6"
+            fontSize = 100.0
+            displayLabel.font = UIFont.systemFont(ofSize: CGFloat(fontSize), weight: .light)
             displayLabel.text = userInput
             hasResult = false
         } else {
-            displayLabel.text = ""
             userInput += "6"
-            displayLabel.text! = userInput
+            if let number = Double(userInput) {
+                configureDisplayFont(number: number.thousands())
+            } else {
+                displayLabel.text = "Error"
+            }
         }
     }
     @objc func sevenPressed() {
         if hasResult {
             userInput = ""
             userInput = "7"
+            fontSize = 100.0
+            displayLabel.font = UIFont.systemFont(ofSize: CGFloat(fontSize), weight: .light)
             displayLabel.text = userInput
             hasResult = false
         } else {
-            displayLabel.text = ""
             userInput += "7"
-            displayLabel.text! = userInput
+            if let number = Double(userInput) {
+                configureDisplayFont(number: number.thousands())
+            } else {
+                displayLabel.text = "Error"
+            }
         }
     }
     @objc func eightPressed() {
         if hasResult {
             userInput = ""
             userInput = "8"
+            
+            fontSize = 100.0
+            displayLabel.font = UIFont.systemFont(ofSize: CGFloat(fontSize), weight: .light)
             displayLabel.text = userInput
             hasResult = false
         } else {
-            displayLabel.text = ""
             userInput += "8"
-            displayLabel.text! = userInput
+            if let number = Double(userInput) {
+                configureDisplayFont(number: number.thousands())
+            } else {
+                displayLabel.text = "Error"
+            }
         }
     }
     @objc func ninePressed() {
         if hasResult {
             userInput = ""
             userInput = "9"
+            fontSize = 100.0
+            displayLabel.font = UIFont.systemFont(ofSize: CGFloat(fontSize), weight: .light)
             displayLabel.text = userInput
             hasResult = false
         } else {
-            displayLabel.text = ""
             userInput += "9"
-            displayLabel.text! = userInput
+            if let number = Double(userInput) {
+                configureDisplayFont(number: number.thousands())
+            } else {
+                displayLabel.text = "Error"
+            }
         }
     }
     @objc func zeroPressed() {
         if hasResult {
-            return
+            userInput = ""
+            userInput = "0"
+            fontSize = 100.0
+            displayLabel.font = UIFont.systemFont(ofSize: CGFloat(fontSize), weight: .light)
+            displayLabel.text = userInput
+            hasResult = false
         } else {
-            displayLabel.text = ""
             userInput += "0"
-            displayLabel.text! = userInput
+                if isDecimal {
+                    displayLabel.text = userInput
+                } else {
+                    if let number = Double(userInput) {
+                        configureDisplayFont(number: number.thousands())
+                    } else {
+                        displayLabel.text = "Error"
+                    }
+                }
         }
     }
     
@@ -386,28 +444,40 @@ class ViewController: UIViewController {
             return
         }
         isNegative.toggle()
-           if isNegative {
-               userInput = "-" + userInput
-               isNegative = false
-           } else {
-               userInput.removeFirst()
-           }
-        displayLabel.text! = userInput
+        if isNegative {
+            userInput = "-" + userInput
+            isNegative = false
+        } else {
+            userInput.removeFirst()
+        }
+        if let number = Double(userInput) {
+            configureDisplayFont(number: number.thousands())
+        } else {
+            displayLabel.text = "Error"
+        }
     }
     @objc func decimalPressed() {
         if userInput.contains(".") {
             return
         }
-            displayLabel.text = ""
-            userInput += "."
-            displayLabel.text! = userInput
+        displayLabel.text = ""
+        userInput += "."
+        if let number = Double(userInput) {
+            configureDisplayFont(number: number.thousands())
+        } else {
+            displayLabel.text = "Error"
+        }
+        isDecimal = true
     }
+    
     @objc func allCleanPressed() {
         userInput = ""
         displayLabel.text! = "0"
+        displayLabel.font = UIFont.systemFont(ofSize: 100, weight: .light)
         hasResult = false
         isNegative = false
         currentOperation = nil
+        fontSize = 100.0
     }
     
     @objc func add() {
@@ -456,81 +526,135 @@ class ViewController: UIViewController {
         }
     }
     
-     @objc func equalPressed() {
+    @objc func percentPressed() {
+        if currentOperation == nil {
+            if let value = Double(userInput) {
+                firstNumber = value
+                firstNumber /= 100
+                configureDisplayFont(number: firstNumber.thousands())
+            }
+            
+        } else if currentOperation == .multiply || currentOperation == .divide {
             if let value = Double(userInput) {
                 secondNumber = value
+                secondNumber /= 100
+                configureDisplayFont(number: secondNumber.thousands())
             }
-         if let operation = currentOperation {
-             switch operation {
-             case .add:
-                 let result = firstNumber + secondNumber
-                 let roundedResult = round(result * 100000000) / 100000000
-                 let numberFormatter = NumberFormatter()
-                 numberFormatter.minimumFractionDigits = 0
-                 numberFormatter.maximumFractionDigits = 15
-
-                 if let formattedResult = numberFormatter.string(from: NSNumber(value: roundedResult)) {
-                     displayLabel.text = formattedResult
-                 } else {
-                     displayLabel.text = "Error"
-                 }
-                 userInput = "\(result)"
-                 hasResult = true
-                 currentOperation = nil
-                 break
-             case .substract:
-                 let result = firstNumber - secondNumber
-                 let roundedResult = round(result * 100000000) / 100000000
-                 let numberFormatter = NumberFormatter()
-                 numberFormatter.minimumFractionDigits = 0
-                 numberFormatter.maximumFractionDigits = 15
-
-                 if let formattedResult = numberFormatter.string(from: NSNumber(value: roundedResult)) {
-                     displayLabel.text = formattedResult
-                 } else {
-                     displayLabel.text = "Error"
-                 }
-                 userInput = "\(result)"
-                 hasResult = true
-                 currentOperation = nil
-                 break
-             case .multiply:
-                 let result = firstNumber * secondNumber
-                 let roundedResult = round(result * 100000000) / 100000000
-                 let numberFormatter = NumberFormatter()
-                 numberFormatter.minimumFractionDigits = 0
-                 numberFormatter.maximumFractionDigits = 15
-
-                 if let formattedResult = numberFormatter.string(from: NSNumber(value: roundedResult)) {
-                     displayLabel.text = formattedResult
-                 } else {
-                     displayLabel.text = "Error"
-                 }
-                 userInput = "\(result)"
-                 hasResult = true
-                 currentOperation = nil
-                 break
-             case .divide:
-                 if secondNumber != 0 {
-                     let result = firstNumber / secondNumber
-                     let roundedResult = round(result * 100000000) / 100000000
-                     let numberFormatter = NumberFormatter()
-                     numberFormatter.minimumFractionDigits = 0
-                     numberFormatter.maximumFractionDigits = 15
-
-                     if let formattedResult = numberFormatter.string(from: NSNumber(value: roundedResult)) {
-                         displayLabel.text = formattedResult
-                     } else {
-                         displayLabel.text = "Error"
-                     }
-                     userInput = "\(result)"
-                     hasResult = true
-                     currentOperation = nil
-                 } else {
-                     displayLabel.text = "Error"
-                 }
-             }
-         }
+        } else if currentOperation == .add || currentOperation == .substract {
+            if let value = Double(userInput) {
+                secondNumber = value
+                let result = (firstNumber * secondNumber) / 100
+                configureDisplayFont(number: result.thousands())
+            }
         }
+    }
+    
+    @objc func equalPressed() {
+        if let value = Double(userInput) {
+            secondNumber = value
+        }
+        if let operation = currentOperation {
+            switch operation {
+                
+            case .add:
+                let result = firstNumber + secondNumber
+                configureResultFont(number: result.thousands())
+                userInput = "\(result)"
+                hasResult = true
+                currentOperation = nil
+                break
+                
+            case .substract:
+                let result = firstNumber - secondNumber
+                configureResultFont(number: result.thousands())
+                userInput = "\(result)"
+                hasResult = true
+                currentOperation = nil
+                break
+                
+            case .multiply:
+                let result = firstNumber * secondNumber
+                configureResultFont(number: result.thousands())
+                userInput = "\(result)"
+                hasResult = true
+                currentOperation = nil
+                break
+                
+            case .divide:
+                if secondNumber != 0 {
+                    let result = firstNumber / secondNumber
+                    configureResultFont(number: result.thousands())
+                    userInput = "\(result)"
+                    hasResult = true
+                    currentOperation = nil
+                } else {
+                    displayLabel.text = "Error"
+                }
+            }
+        }
+    }
+    
+    func configureDisplayFont(number: String) {
+       
+        let digitCount = number.count
+        if digitCount < 12 {
+            for _ in 0..<digitCount {
+                switch digitCount {
+                case 1...6:
+                    fontSize = 100.0
+                case 7:
+                    fontSize -= 1
+                case 8:
+                    fontSize -= 1
+                case 9:
+                    fontSize -= 2
+                case 10:
+                    fontSize -= 1
+                case 11:
+                    fontSize -= 2
+                default:
+                    break
+                }
+                fontSize = max(fontSize, 60)
+                displayLabel.font = UIFont.systemFont(ofSize: CGFloat(fontSize), weight: .light)
+            }
+            displayLabel.text = number
+        } else {
+            return
+        }
+    }
+    
+    func configureResultFont(number: String) {
+       
+        let digitCount = number.count
+        if digitCount < 12 {
+            for _ in 0..<digitCount {
+                switch digitCount {
+                case 1...6:
+                    fontSize = 100.0
+                case 7:
+                    fontSize = 95.0
+                case 8:
+                    fontSize = 90.0
+                case 9:
+                    fontSize = 80.0
+                case 10:
+                    fontSize = 70.0
+                case 11:
+                    fontSize = 60.0
+                default:
+                    break
+                }
+                fontSize = max(fontSize, 60)
+                displayLabel.font = UIFont.systemFont(ofSize: CGFloat(fontSize), weight: .light)
+            }
+            displayLabel.text = number
+        } else {
+            return
+        }
+    }
 }
+    
 
+    
+   
