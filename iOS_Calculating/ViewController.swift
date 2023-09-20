@@ -427,15 +427,15 @@ class ViewController: UIViewController {
             hasResult = false
         } else {
             userInput += "0"
-                if isDecimal {
-                    displayLabel.text = userInput
+            if isDecimal {
+                displayLabel.text = userInput
+            } else {
+                if let number = Double(userInput) {
+                    configureDisplayFont(number: number.thousands())
                 } else {
-                    if let number = Double(userInput) {
-                        configureDisplayFont(number: number.thousands())
-                    } else {
-                        displayLabel.text = "Error"
-                    }
+                    displayLabel.text = "Error"
                 }
+            }
         }
     }
     
@@ -558,7 +558,7 @@ class ViewController: UIViewController {
                 
             case .add:
                 let result = firstNumber + secondNumber
-                configureResultFont(number: result.thousands())
+                configureDisplayFont(number: result.thousands())
                 userInput = "\(result)"
                 hasResult = true
                 currentOperation = nil
@@ -566,7 +566,7 @@ class ViewController: UIViewController {
                 
             case .substract:
                 let result = firstNumber - secondNumber
-                configureResultFont(number: result.thousands())
+                configureDisplayFont(number: result.thousands())
                 userInput = "\(result)"
                 hasResult = true
                 currentOperation = nil
@@ -574,7 +574,7 @@ class ViewController: UIViewController {
                 
             case .multiply:
                 let result = firstNumber * secondNumber
-                configureResultFont(number: result.thousands())
+                configureDisplayFont(number: result.thousands())
                 userInput = "\(result)"
                 hasResult = true
                 currentOperation = nil
@@ -583,7 +583,7 @@ class ViewController: UIViewController {
             case .divide:
                 if secondNumber != 0 {
                     let result = firstNumber / secondNumber
-                    configureResultFont(number: result.thousands())
+                    configureDisplayFont(number: result.thousands())
                     userInput = "\(result)"
                     hasResult = true
                     currentOperation = nil
@@ -595,37 +595,7 @@ class ViewController: UIViewController {
     }
     
     func configureDisplayFont(number: String) {
-       
-        let digitCount = number.count
-        if digitCount < 12 {
-            for _ in 0..<digitCount {
-                switch digitCount {
-                case 1...6:
-                    fontSize = 100.0
-                case 7:
-                    fontSize -= 1
-                case 8:
-                    fontSize -= 1
-                case 9:
-                    fontSize -= 2
-                case 10:
-                    fontSize -= 1
-                case 11:
-                    fontSize -= 2
-                default:
-                    break
-                }
-                fontSize = max(fontSize, 60)
-                displayLabel.font = UIFont.systemFont(ofSize: CGFloat(fontSize), weight: .light)
-            }
-            displayLabel.text = number
-        } else {
-            return
-        }
-    }
-    
-    func configureResultFont(number: String) {
-       
+        
         let digitCount = number.count
         if digitCount < 12 {
             for _ in 0..<digitCount {
@@ -653,6 +623,7 @@ class ViewController: UIViewController {
             return
         }
     }
+    
 }
     
 
